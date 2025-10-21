@@ -27,9 +27,9 @@ self.addEventListener("push", (event) => {
   const title = data.title || "New Notification";
   const options = {
     body: data.body || "You have a new notification",
-    icon: data.icon || "/icon.png",
-    badge: data.badge || "/badge.png",
-    data: data.url || "/",
+    icon: "/notification.png", // Notification icon
+    badge: "/verify.png", // favicon like image
+    data: data.url || "/sk",
     vibrate: [200, 100, 200],
     tag: data.tag || "notification",
     requireInteraction: false,
