@@ -6,8 +6,24 @@ const cookieParser = require("cookie-parser");
 const subscriptionRoutes = require("./routes/subscription");
 const cron = require("node-cron");
 const { sendToAll } = require("./utils/notifications");
+const { notificationQueue } = require("./queues/notificationQueue");
+require("./queues/notificationWorker"); // Initialize the worker
+
+const { ExpressAdapter } = require("@bull-board/express");
+const { createBullBoard } = require("@bull-board/api");
+const { BullMQAdapter } = require("@bull-board/api/bullMQAdapter");
 
 const app = express();
+
+const serverAdapter = new ExpressAdapter();
+serverAdapter.setBasePath("/admin/queues");
+
+createBullBoard({
+  queues: [new BullMQAdapter(notificationQueue)],
+  serverAdapter,
+});
+
+app.use("/admin/queues", serverAdapter.getRouter());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -19,6 +35,20 @@ app.use("/api", subscriptionRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
+});
+
+// Example endpoint to schedule a notification
+app.post("/api/notify", async (req, res) => {
+  const { title, body, delayMs } = req.body;
+
+  // Add job to queue with optional delay
+  await notificationQueue.add(
+    "send-notification",
+    { title, body },
+    { delay: delayMs || 0 } // delay in ms (e.g. 60000 = 1 min)
+  );
+
+  res.json({ message: `Notification scheduled in ${delayMs / 1000}s` });
 });
 
 // ---------- Cron job: hourly notification ----------
