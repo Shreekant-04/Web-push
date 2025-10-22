@@ -36,7 +36,7 @@ export async function subscribeToPush() {
 
     // Get VAPID public key from backend
     const response = await fetch(
-      "https://31w6gf3m-3000.inc1.devtunnels.ms/api/vapidPublicKey"
+      "https://31w6gf3m-4040.inc1.devtunnels.ms/api/v1/notifications/vapidPublicKey"
     );
     const { publicKey } = await response.json();
     console.log("VAPID public key received:", publicKey);
@@ -86,7 +86,7 @@ export async function subscribeToPush() {
     // Send subscription to backend
     console.log("Sending subscription to backend...");
     const res = await fetch(
-      "https://31w6gf3m-3000.inc1.devtunnels.ms/api/subscribe",
+      "https://31w6gf3m-4040.inc1.devtunnels.ms/api/v1/notifications/subscribe",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
